@@ -1,0 +1,37 @@
+{% extends "blog/base.html" %}
+
+{% block title %}Sign In &mdash; Inkwell{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-5">
+    <div class="card border-0 shadow-sm p-4 p-md-5 bg-white">
+      <h2 class="fw-bold text-center mb-4">Welcome back</h2>
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {% if next %}
+          <input type="hidden" name="next" value="{{ next }}">
+        {% endif %}
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger small">
+            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+          </div>
+        {% endif %}
+        {% for field in form %}
+          <div class="mb-3">
+            <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}
+              <div class="text-danger small mt-1">{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-dark w-100 rounded-pill py-2 mt-2">Sign In</button>
+      </form>
+      <p class="text-center text-muted small mt-4 mb-0">
+        No account? <a href="{% url 'blog:register' %}{% if next %}?next={{ next }}{% endif %}" class="fw-semibold text-dark">Create one</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

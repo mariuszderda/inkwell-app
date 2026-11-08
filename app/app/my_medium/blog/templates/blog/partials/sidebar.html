@@ -1,0 +1,40 @@
+<div class="card border-0 shadow-sm p-4 mb-4 bg-white">
+  <h5 class="fw-bold mb-3">Trending on Inkwell</h5>
+  {% if trending_entries %}
+    <ol class="list-unstyled mb-0 vstack gap-3">
+      {% for entry in trending_entries %}
+        <li class="d-flex gap-3 align-items-start">
+          <span class="fs-4 fw-bold text-secondary opacity-50">0{{ entry.rank }}</span>
+          <div>
+            <div class="small text-muted">
+              <a href="{% url 'blog:author_profile' entry.article.author.username %}" class="text-dark text-decoration-none fw-medium">
+                @{{ entry.article.author.username }}
+              </a>
+            </div>
+            <a href="{{ entry.article.get_absolute_url }}" class="fw-bold text-dark text-decoration-none d-block">
+              {{ entry.article.title }}
+            </a>
+            <span class="small text-muted">
+              {{ entry.article.reading_time }} min read &middot; {{ entry.score }} interactions (24h)
+            </span>
+          </div>
+        </li>
+      {% endfor %}
+    </ol>
+  {% else %}
+    <p class="text-muted small mb-0">No trending stories in the last 24 hours yet.</p>
+  {% endif %}
+</div>
+
+<div class="card border-0 shadow-sm p-4 bg-white">
+  <h5 class="fw-bold mb-3">Discover More</h5>
+  <div class="d-flex flex-wrap gap-2">
+    {% for tag in popular_tags %}
+      <a href="{{ tag.get_absolute_url }}" class="badge bg-light text-dark border text-decoration-none rounded-pill px-3 py-2">
+        #{{ tag.name }}
+      </a>
+    {% empty %}
+      <p class="text-muted small mb-0">No tags yet.</p>
+    {% endfor %}
+  </div>
+</div>

@@ -1,0 +1,28 @@
+{% extends "blog/base.html" %}
+
+{% block title %}#{{ tag.name }} &mdash; Inkwell{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="mb-4 pb-2 border-bottom">
+      <span class="badge bg-secondary-subtle text-dark rounded-pill px-3 py-2 mb-2">#{{ tag.name }}</span>
+      <h2 class="fw-bold mb-0">Stories tagged "{{ tag.name }}"</h2>
+    </div>
+
+    {% for article in articles %}
+      {% include "blog/partials/article_card.html" with article=article %}
+    {% empty %}
+      <div class="card border-0 shadow-sm p-4 text-center text-muted">
+        No published stories with this tag yet.
+      </div>
+    {% endfor %}
+
+    {% include "blog/partials/pagination.html" with page_obj=page_obj %}
+  </div>
+
+  <div class="col-lg-4">
+    {% include "blog/partials/sidebar.html" %}
+  </div>
+</div>
+{% endblock %}

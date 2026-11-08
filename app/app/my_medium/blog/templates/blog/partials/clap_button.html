@@ -1,0 +1,15 @@
+{% if user.is_authenticated and article.status == 'published' %}
+  <button
+    type="button"
+    class="btn btn-outline-dark rounded-pill px-3"
+    hx-post="{% url 'blog:article_clap' article.slug %}"
+    hx-target="#clap-container"
+    hx-swap="innerHTML"
+  >
+    &#128079; Clap <span class="badge bg-dark text-white rounded-pill ms-1">{{ article.claps_count }}</span>
+  </button>
+{% else %}
+  <a href="{% url 'blog:login' %}?next={{ request.path }}" class="btn btn-outline-secondary rounded-pill px-3">
+    &#128079; Claps <span class="badge bg-secondary text-white rounded-pill ms-1">{{ article.claps_count }}</span>
+  </a>
+{% endif %}

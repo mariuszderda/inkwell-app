@@ -1,0 +1,43 @@
+<h4 class="fw-bold mb-3">Comments ({{ comments|length }})</h4>
+
+{% if user.is_authenticated and article.status == 'published' %}
+  <form
+    method="post"
+    action="{% url 'blog:article_comment' article.slug %}"
+    hx-post="{% url 'blog:article_comment' article.slug %}"
+    hx-target="#comments-section"
+    hx-swap="innerHTML"
+    class="mb-4"
+  >
+    {% csrf_token %}
+    {{ comment_form.body }}
+    {% for error in comment_form.body.errors %}
+      <div class="text-danger small mt-1">{{ error }}</div>
+    {% endfor %}
+    <div class="mt-2 text-end">
+      <button type="submit" class="btn btn-dark btn-sm rounded-pill px-3">Respond</button>
+    </div>
+  </form>
+{% elif not user.is_authenticated %}
+  <div class="alert alert-light border mb-4">
+    <a href="{% url 'blog:login' %}?next={{ request.path }}" class="fw-semibold">Sign in</a> or
+    <a href="{% url 'blog:register' %}?next={{ request.path }}" class="fw-semibold">create an account</a>
+    to join the conversation.
+  </div>
+{% endif %}
+
+<div class="vstack gap-3">
+  {% for comment in comments %}
+    <div class="border-bottom pb-3">
+      <div class="d-flex justify-content-between align-items-center small text-muted mb-1">
+        <a href="{% url 'blog:author_profile' comment.author.username %}" class="fw-semibold text-dark text-decoration-none">
+          @{{ comment.author.username }}
+        </a>
+        <span>{{ comment.created_at|date:"M d, Y H:i" }}</span>
+      </div>
+      <div class="text-body">{{ comment.body|linebreaksbr }}</div>
+    </div>
+  {% empty %}
+    <p class="text-muted mb-0">No comments yet. Be the first to share your thoughts!</p>
+  {% endfor %}
+</div>

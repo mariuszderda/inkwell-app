@@ -1,0 +1,23 @@
+.inkwell-brand {
+    font-family: Georgia, "Times New Roman", Times, serif;
+    letter-spacing: -0.5px;
+}
+
+.article-body {
+    font-family: Georgia, "Times New Roman", Times, serif;
+    color: #242424;
+}
+
+.article-body pre {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+}
+
+.article-body blockquote {
+    border-left: 4px solid #242424;
+    padding-left: 1rem;
+    font-style: italic;
+    color: #555;
+}

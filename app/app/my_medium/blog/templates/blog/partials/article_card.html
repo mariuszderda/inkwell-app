@@ -1,0 +1,35 @@
+<div class="card border-0 shadow-sm mb-3 p-4 bg-white">
+  <div class="d-flex align-items-center text-muted small mb-2">
+    <a href="{% url 'blog:author_profile' article.author.username %}" class="fw-semibold text-dark text-decoration-none">
+      @{{ article.author.username }}
+    </a>
+    <span class="mx-2">&middot;</span>
+    <span>{{ article.published_at|default:article.created_at|date:"M d, Y" }}</span>
+  </div>
+
+  <h3 class="h4 fw-bold mb-2">
+    <a href="{{ article.get_absolute_url }}" class="text-dark text-decoration-none">
+      {{ article.title }}
+    </a>
+  </h3>
+
+  <p class="text-secondary mb-3">
+    {{ article.body|truncatewords:32 }}
+  </p>
+
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 small text-muted">
+    <div class="d-flex flex-wrap gap-1 align-items-center">
+      {% for tag in article.tags.all %}
+        <a href="{{ tag.get_absolute_url }}" class="badge bg-light text-secondary border text-decoration-none rounded-pill px-2 py-1">
+          #{{ tag.name }}
+        </a>
+      {% endfor %}
+      <span class="ms-1">{{ article.reading_time }} min read</span>
+    </div>
+
+    <div class="d-flex align-items-center gap-3">
+      <span>&#128079; {{ article.claps_count }}</span>
+      <span>&#128172; {{ article.comments_count|default:article.comments.count }}</span>
+    </div>
+  </div>
+</div>

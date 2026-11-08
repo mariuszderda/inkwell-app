@@ -1,0 +1,63 @@
+{% extends "blog/base.html" %}
+
+{% block title %}{{ article.title }} &mdash; Inkwell{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <article class="card border-0 shadow-sm p-4 p-md-5 mb-4 bg-white">
+      {% if article.status == 'draft' %}
+        <div class="mb-3">
+          <span class="badge bg-warning text-dark">Draft (Only visible to you)</span>
+        </div>
+      {% endif %}
+
+      <h1 class="fw-bold display-6 mb-3">{{ article.title }}</h1>
+
+      <div class="d-flex flex-wrap justify-content-between align-items-center text-muted small mb-4 pb-3 border-bottom">
+        <div>
+          By <a href="{% url 'blog:author_profile' article.author.username %}" class="fw-semibold text-dark text-decoration-none">@{{ article.author.username }}</a>
+          &middot;
+          <span>{{ article.published_at|default:article.created_at|date:"M d, Y" }}</span>
+          &middot;
+          <span>{{ article.reading_time }} min read ({{ article.word_count }} words)</span>
+        </div>
+
+        {% if user == article.author %}
+          <div class="d-flex gap-2 mt-2 mt-sm-0">
+            <a href="{% url 'blog:article_edit' article.slug %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+            <a href="{% url 'blog:article_delete' article.slug %}" class="btn btn-sm btn-outline-danger">Delete</a>
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="article-body fs-5 lh-lg mb-4">
+        {{ article.render_markdown|safe }}
+      </div>
+
+      {% if article.tags.all %}
+        <div class="d-flex flex-wrap gap-2 mb-4">
+          {% for tag in article.tags.all %}
+            <a href="{{ tag.get_absolute_url }}" class="badge bg-light text-secondary border text-decoration-none rounded-pill px-3 py-2">
+              #{{ tag.name }}
+            </a>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="d-flex align-items-center justify-content-between pt-3 border-top">
+        <div id="clap-container">
+          {% include "blog/partials/clap_button.html" with article=article %}
+        </div>
+        <div class="text-muted small">
+          {{ comments|length }} comment{{ comments|length|pluralize }}
+        </div>
+      </div>
+    </article>
+
+    <section id="comments-section" class="card border-0 shadow-sm p-4 bg-white">
+      {% include "blog/partials/comments_section.html" with article=article comments=comments comment_form=comment_form %}
+    </section>
+  </div>
+</div>
+{% endblock %}

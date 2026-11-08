@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: web-config
+  namespace: inkwell
+data:
+  DEBUG: "False"
+  ALLOWED_HOST: "localhost"
+  LOG_LEVEL: "INFO"
