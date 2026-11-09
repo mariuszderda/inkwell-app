@@ -1,0 +1,14 @@
+- name: Infrastruktura GCP (network + storage)
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  module_defaults:
+    group/google.cloud.gcp:
+      project: "{{ gcp_project }}"
+      auth_kind: serviceaccount
+      service_account_file: "{{ gcp_cred_file }}"
+
+  roles:
+    - gcp_network
+    - gcp_storage

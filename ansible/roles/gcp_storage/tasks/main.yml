@@ -1,0 +1,24 @@
+- name: Statyczny zewnętrzny adres IP (dla mastera)
+  google.cloud.gcp_compute_address:
+    name: "{{ gcp_static_ip_name }}"
+    region: "{{ gcp_region }}"
+    address_type: EXTERNAL
+    state: present
+  register: static_ip
+
+- name: Pokaż adres
+  ansible.builtin.debug:
+    msg: "Statyczny IP klastra: {{ static_ip.address }}"
+
+- name: Backup Storage
+  google.cloud.gcp_storage_bucket:
+    name: "{{ gcp_backup_bucket }}"
+    location: "{{ gcp_region | upper }}"
+    storage_class: STANDARD
+    lifecycle:
+      rule:
+        - action:
+            type: Delete
+          condition:
+            age_days: 14
+    state: present

@@ -1,0 +1,27 @@
+- name: Pobierz skrypt instalacyjny k3s
+  ansible.builtin.get_url:
+    url: https://get.k3s.io
+    dest: /usr/local/bin/k3s-install.sh
+    mode: "0755"
+
+- name: Zainstaluj k3s (agent)
+  ansible.builtin.command: /usr/local/bin/k3s-install.sh
+  environment:
+    INSTALL_K3S_VERSION: "{{ k3s_version }}"
+    K3S_TOKEN: "{{ k3s_token }}"
+    K3S_URL: "{{ k3s_server_url }}"
+    INSTALL_K3S_EXEC: "agent --node-ip {{ networkInterfaces[0].networkIP }}"
+  args:
+    creates: /usr/local/bin/k3s
+  no_log: false
+
+- name: Czekaj, aż worker będzie Ready (pytamy mastera)
+  ansible.builtin.command: >-
+    k3s kubectl get node {{ inventory_hostname }}
+    -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}'
+  delegate_to: "{{ groups['role_k3s_master'][0] }}"
+  register: node_ready
+  until: node_ready.stdout == "True"
+  retries: 30
+  delay: 5
+  changed_when: false

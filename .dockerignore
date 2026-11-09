@@ -2,5 +2,9 @@
 **/__pycache__
 **/*.pyc
 **/db_data
+**/staticfiles
+**/.env
 .git
-.env
+.idea
+k8s/
+*.dump

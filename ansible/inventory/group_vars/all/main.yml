@@ -1,0 +1,26 @@
+# project
+gcp_project: devops-automation-514010
+gcp_region: europe-central2
+gcp_zone: europe-central2-a
+
+# resource name
+gcp_network_name: inkwell-vpc
+gcp_subnet_name: inkwell-subnet
+gcp_subnet_cidr: 10.10.0.0/24
+gcp_static_ip_name: inkwell-ip
+gcp_backup_bucket: "{{ gcp_project }}-inkwell-backups"
+
+gcp_api: "https://www.googleapis.com/compute/v1/projects/{{ gcp_project }}"
+gcp_network_selflink: "{{ gcp_api }}/global/networks/{{ gcp_network_name }}"
+gcp_subnet_selflink: "{{ gcp_api }}/regions/{{ gcp_region }}/subnetworks/{{ gcp_subnet_name }}"
+
+# access
+ssh_user: devops_automatyzacja
+gcp_cred_file: ~/.gcp/ansible.json
+ssh_pubkey_file: ~/.ssh/inkwell.pub
+
+admin_cidr: "77.222.229.186/32"
+
+k3s_token: "{{ vault_k3s_token }}"
+k3s_version: "v1.37.2+k3s1"
+k3s_server_url: "https://{{hostvars[groups['role_k3s_master'][0]].networkInterfaces[0].networkIP}}:6443"

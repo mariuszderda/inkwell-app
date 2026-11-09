@@ -1,0 +1,13 @@
+- name: Usuń VM-ki (zasoby trwałe zostają)
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  module_defaults:
+    group/google.cloud.gcp:
+      project: "{{ gcp_project }}"
+      auth_kind: serviceaccount
+      service_account_file: "{{ gcp_cred_file }}"
+  roles:
+    - role: gcp_compute
+      vars:
+        gcp_compute_state: absent

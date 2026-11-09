@@ -19,7 +19,7 @@ services:
 
   web:
     build:
-      context: .
+      context: ..
       dockerfile: Dockerfile
     container_name: inkwell-web
     restart: unless-stopped

@@ -1,0 +1,24 @@
+- name: VM-ki w GCP
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  module_defaults:
+    group/google.cloud.gcp:
+      project: "{{ gcp_project }}"
+      auth_kind: serviceaccount
+      service_account_file: "{{ gcp_cred_file }}"
+  roles:
+    - gcp_compute
+  post_tasks:
+    - name: Odśwież inventory (żeby zobaczyć nowe VM-ki)
+      ansible.builtin.meta: refresh_inventory
+
+- name: Poczekaj, aż VM-ki przyjmą SSH
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Czekaj na połączenie
+      ansible.builtin.wait_for_connection:
+        timeout: 300
+    - name: Ping
+      ansible.builtin.ping:

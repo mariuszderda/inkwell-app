@@ -1,0 +1,49 @@
+- name: VPC Network
+  google.cloud.gcp_compute_network:
+    name: "{{ gcp_network_name }}"
+    auto_create_subnetworks: false
+    state: present
+
+- name: Subnetwork
+  google.cloud.gcp_compute_subnetwork:
+    name: "{{ gcp_subnet_name }}"
+    region: "{{ gcp_region }}"
+    ip_cidr_range: "{{ gcp_subnet_cidr }}"
+    network:
+      selfLink: "{{ gcp_network_selflink }}"
+    state: present
+
+- name: Firewall - SSH i API k3s tylko dla admina
+  google.cloud.gcp_compute_firewall:
+    name: "{{ gcp_network_name }}-allow-admin"
+    network:
+      selfLink: "{{ gcp_network_selflink }}"
+    allowed:
+      - ip_protocol: tcp
+        ports: ["22", "6443"]
+    source_ranges: ["{{ admin_cidr }}"]
+    state: present
+
+- name: Tworzenie reguły firewalla zezwalającej na ruch HTTP
+  google.cloud.gcp_compute_firewall:
+    name: "{{ gcp_network_name }}-allow-http"
+    network:
+      selfLink: "{{ gcp_network_selflink }}"
+    allowed:
+      - ip_protocol: tcp
+        ports: ['80', '443']
+    source_ranges: ['0.0.0.0/0']
+    project: "{{ gcp_project }}"
+    state: present
+
+- name: Tworzenie reguły firewalla zezwalającej na ruch wewnątrz klastra
+  google.cloud.gcp_compute_firewall:
+    name: "{{ gcp_network_name }}-allow-internal"
+    network:
+      selfLink: "{{ gcp_network_selflink }}"
+    allowed:
+      - ip_protocol: tcp
+      - ip_protocol: udp
+      - ip_protocol: icmp
+    source_ranges: ["{{ gcp_subnet_cidr }}"]
+    state: present

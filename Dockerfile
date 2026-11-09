@@ -6,11 +6,11 @@ ENV UV_COMPILE_BYTECODE=1 \
 WORKDIR /app
 
 # Install dependencies first for better layer caching
-COPY app/pyproject.toml app/uv.lock ./
+COPY app/app/pyproject.toml app/app/uv.lock ./
 RUN uv sync --frozen --no-install-project --no-dev
 
 # Copy application source
-COPY app/ ./
+COPY app/app ./
 
 # Collect static files at biuld time
 WORKDIR /app/my_medium
