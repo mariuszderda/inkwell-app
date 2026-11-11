@@ -31,8 +31,8 @@
       selfLink: "{{ gcp_network_selflink }}"
     allowed:
       - ip_protocol: tcp
-        ports: ['80', '443']
-    source_ranges: ['0.0.0.0/0']
+        ports: ["80", "443"]
+    source_ranges: ["0.0.0.0/0"]
     project: "{{ gcp_project }}"
     state: present
 
@@ -47,3 +47,7 @@
       - ip_protocol: icmp
     source_ranges: ["{{ gcp_subnet_cidr }}"]
     state: present
+
+- name: jakaś tam nazwa
+  google.cloud.gcp_bigquery_table:
+    

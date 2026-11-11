@@ -17,7 +17,7 @@
   become: true
   gather_facts: true
   tasks:
-    - name: Odczytaj kubeconfig z mastera 
+    - name: Odczytaj kubeconfig z mastera
       ansible.builtin.slurp:
         src: /etc/rancher/k3s/k3s.yaml
       register: kubeconfig

@@ -10,7 +10,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: migrate
-          image: inkwell-web:0.1.0
+          image: ghcr.io/mariuszderda/inkwell-web:0.1.0
           imagePullPolicy: IfNotPresent
           command: ["python", "manage.py", "migrate", "--noinput"]
           envFrom:

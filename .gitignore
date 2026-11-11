@@ -3,3 +3,4 @@ secret*
 
 .idea
 ansible/collections/
+app/db_data

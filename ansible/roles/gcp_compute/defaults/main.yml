@@ -4,6 +4,6 @@ gcp_image: projects/debian-cloud/global/images/family/debian-12
 gcp_disk_size_gb: 20
 
 gcp_nodes:
-  - { name: k3s-master,   role: k3s-master, static_ip: true }
+  - { name: k3s-master, role: k3s-master, static_ip: true }
   - { name: k3s-worker-1, role: k3s-worker, static_ip: false }
   - { name: k3s-worker-2, role: k3s-worker, static_ip: false }

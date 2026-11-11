@@ -23,4 +23,4 @@ admin_cidr: "77.222.229.186/32"
 
 k3s_token: "{{ vault_k3s_token }}"
 k3s_version: "v1.37.2+k3s1"
-k3s_server_url: "https://{{hostvars[groups['role_k3s_master'][0]].networkInterfaces[0].networkIP}}:6443"
+k3s_server_url: "https://{{ hostvars[groups['role_k3s_master'][0]].networkInterfaces[0].networkIP }}:6443"
