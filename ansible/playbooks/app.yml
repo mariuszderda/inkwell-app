@@ -1,0 +1,6 @@
+- name: Aplikacja Inkwell
+  hosts: role_k3s_master
+  become: true
+  gather_facts: false
+  roles:
+    - inkwell_app
