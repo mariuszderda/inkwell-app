@@ -10,9 +10,9 @@ spec:
       restartPolicy: Never
       containers:
         - name: migrate
-          image: ghcr.io/mariuszderda/inkwell-web:0.1.0
+          image: "{{ app_image }}"
           imagePullPolicy: IfNotPresent
           command: ["python", "manage.py", "migrate", "--noinput"]
           envFrom:
-            - configMapRef: {name: web-config}
-            - secretRef: {name: web-secret}
+            - configMapRef: { name: web-config }
+            - secretRef: { name: web-secret }

@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: ghcr.io/mariuszderda/inkwell-web:0.1.0
+          image: "{{ app_image }}"
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
