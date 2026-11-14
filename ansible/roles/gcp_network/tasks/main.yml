@@ -47,7 +47,3 @@
       - ip_protocol: icmp
     source_ranges: ["{{ gcp_subnet_cidr }}"]
     state: present
-
-- name: jakaś tam nazwa
-  google.cloud.gcp_bigquery_table:
-    

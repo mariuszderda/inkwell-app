@@ -25,6 +25,9 @@
           selfLink: "{{ gcp_subnet_selflink }}"
         access_configs: "{{ nat_static if item.static_ip else nat_ephemeral }}"
     state: "{{ gcp_compute_state }}"
+    service_accounts:
+      - email: "{{ gcp_nodes_sa }}"
+        scopes: ["https://www.googleapis.com/auth/devstorage.read_write"]
   vars:
     nat_static:
       - name: External NAT

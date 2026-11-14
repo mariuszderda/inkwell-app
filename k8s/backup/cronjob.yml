@@ -1,0 +1,51 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: pg-backup
+  namespace: inkwell
+spec:
+  schedule: "0 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          restartPolicy: Never
+          volumes:
+            - name: dump
+              emptyDir: {}
+          initContainers:
+            - name: dump
+              image: postgres:16-alpine
+              command:
+                - sh
+                - -c
+                - pg_dump -h postgres -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc -f /dump/inkwell.dump
+              envFrom:
+                - secretRef:
+                    name: postgres-credentials
+              env:
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgres-credentials
+                      key: POSTGRES_PASSWORD
+              volumeMounts:
+                - name: dump
+                  mountPath: /dump
+          containers:
+            - name: upload
+              image: gcr.io/google.com/cloudsdktool/google-cloud-cli:slim
+              command:
+                - sh
+                - -c
+                - >-
+                  TS=$(date -u +%Y%m%dT%H%M%SZ) &&
+                  gcloud storage cp /dump/inkwell.dump gs://{{ gcp_backup_bucket }}/inkwell-$TS.dump &&
+                  gcloud storage cp /dump/inkwell.dump gs://{{ gcp_backup_bucket }}/latest.dump
+              volumeMounts:
+                - name: dump
+                  mountPath: /dump

@@ -1,0 +1,14 @@
+- name: Import playbook network infrastructure
+  ansible.builtin.import_playbook: infra-base.yml
+
+- name: Import playbook VM infrastructure
+  ansible.builtin.import_playbook: infra-compute.yml
+
+- name: Import playbook k3s
+  ansible.builtin.import_playbook: k3s.yml
+
+- name: Import playbook application
+  ansible.builtin.import_playbook: app.yml
+
+- name: Import test smoke
+  ansible.builtin.import_playbook: smoke.yml

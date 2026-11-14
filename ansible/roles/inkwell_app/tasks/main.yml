@@ -3,7 +3,7 @@
     path: "{{ k8s_remote }}/{{ item }}"
     state: directory
     mode: "0700"
-  loop: ["", postgres, redis, web]
+  loop: ["", postgres, redis, backup, web]
 
 - name: Wyrenderuj manifesty na masterze
   ansible.builtin.template:
@@ -15,6 +15,7 @@
              k8s_dir + '/*.yml',
              k8s_dir + '/postgres/*.yml',
              k8s_dir + '/redis/*.yml',
+             k8s_dir + '/backup/*.yml',
              k8s_dir + '/web/*.yml') }}
   loop_control:
     label: "{{ item | relpath(k8s_dir) }}"
@@ -66,5 +67,3 @@
 - name: Czekaj na aplikacje
   ansible.builtin.command: kubectl rollout status deployment/web -n inkwell --timeout=180s
   changed_when: false
-
-# tu aplikacja: apply deployment + service + ingress, potem rollout status (piszesz sam)

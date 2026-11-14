@@ -4,3 +4,9 @@
   gather_facts: false
   roles:
     - inkwell_app
+    - inkwell_restore
+  post_tasks:
+    - name: Włącz backup (dopiero po odtworzeniu danych)
+      ansible.builtin.command: k3s kubectl apply -f {{ k8s_remote }}/backup/
+      register: r
+      changed_when: "'created' in r.stdout or 'configured' in r.stdout"

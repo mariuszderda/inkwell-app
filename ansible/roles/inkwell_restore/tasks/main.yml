@@ -1,0 +1,34 @@
+- name: Czy klaster ma już dane? (znacznik)
+  ansible.builtin.command: k3s kubectl get configmap restore-done -n inkwell
+  register: marker
+  changed_when: false
+  failed_when: false
+
+- name: Odtwarzanie na świeżym klastrze
+  when: marker.rc != 0
+  block:
+    - name: Czy istnieje backup?
+      ansible.builtin.command: gcloud storage ls gs://{{ gcp_backup_bucket }}/latest.dump
+      register: backup
+      changed_when: false
+      failed_when: backup.rc != 0 and 'matched no objects' not in backup.stderr
+
+    - name: Pobierz ostatni backup
+      ansible.builtin.command: gcloud storage cp gs://{{ gcp_backup_bucket }}/latest.dump /tmp/latest.dump
+      when: backup.rc == 0
+
+    - name: Odtwórz bazę
+      ansible.builtin.shell: >-
+        k3s kubectl exec -i -n inkwell postgres-0 --
+        pg_restore -U postgres -d inkwell --clean --if-exists < /tmp/latest.dump
+      when: backup.rc == 0
+
+    - name: Usuń pobrany plik
+      ansible.builtin.file:
+        path: /tmp/latest.dump
+        state: absent
+
+    - name: Zapisz znacznik
+      ansible.builtin.command: >-
+        k3s kubectl create configmap restore-done -n inkwell
+        --from-literal=restored={{ backup.rc == 0 }}

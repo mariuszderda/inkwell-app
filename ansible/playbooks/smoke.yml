@@ -1,0 +1,21 @@
+- name: Testy dymne
+  hosts: role_k3s_master
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Trzy węzły Ready
+      ansible.builtin.shell: k3s kubectl get nodes --no-headers | grep -cw Ready
+      register: nodes
+      changed_when: false
+      failed_when: nodes.stdout | int != 3
+
+    - name: Aplikacja odpowiada z internetu
+      ansible.builtin.uri:
+        url: "http://{{ ansible_host }}/"
+        status_code: [200, 302]
+      delegate_to: localhost
+      become: false
+      register: http
+      until: http is succeeded
+      retries: 12
+      delay: 5
