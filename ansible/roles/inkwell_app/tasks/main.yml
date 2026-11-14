@@ -60,7 +60,11 @@
 
 - name: Aplikacja deployment + service + ingress
   ansible.builtin.command: >-
-    k3s kubectl apply -f {{ k8s_remote }}/web/deployment.yml -f {{ k8s_remote }}/web/service.yml -f {{ k8s_remote }}/web/ingress.yml
+    k3s kubectl apply
+      -f {{ k8s_remote }}/web/deployment.yml
+      -f {{ k8s_remote }}/web/service.yml
+      -f {{ k8s_remote }}/web/ingress.yml
+      -f {{ k8s_remote }}/web/hpa.yml
   register: r
   changed_when: "'created' in r.stdout or 'configured' in r.stdout"
 

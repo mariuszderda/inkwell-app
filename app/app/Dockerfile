@@ -39,4 +39,4 @@ COPY . .
 EXPOSE 8000
 
 # Run Gunicorn as the production WSGI server.
-CMD ["gunicorn", "myapp.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["gunicorn", "my_medium.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "2", "--threads", "4", "--access-logfile", "-", "--error-logfile", "-"]

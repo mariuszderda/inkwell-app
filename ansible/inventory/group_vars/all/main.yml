@@ -31,7 +31,7 @@ postgres_password: "{{ vault_postgres_password }}"
 django_secret_key: "{{ vault_django_secret_key }}"
 
 app_image_repo: ghcr.io/mariuszderda/inkwell-web
-app_image_tag: "0.1.0"
+app_image_tag: "0.1.1"
 app_image: "{{ app_image_repo }}:{{ app_image_tag }}"
 app_host: "{{ hostvars[groups['role_k3s_master'][0]].ansible_host }}"
 
