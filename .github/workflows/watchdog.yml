@@ -98,9 +98,19 @@ jobs:
 
       - name: Tymczasowa reguła firewalla dla runnera
         run: |
-          gcloud compute firewall-rules create watchdog-ssh-${{ github.run_id }} \
+          IP=""
+          for url in https://checkip.amazonaws.com https://api.ipify.org https://ifconfig.me; do
+            candidate=$(curl -s -m 10 "$url" | tr -d '[:space:]')
+            if [[ "$candidate" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              IP="$candidate"
+              break
+            fi
+          done
+          [ -n "$IP" ] || { echo "::error::Nie udało się ustalić adresu IP runnera"; exit 1; }
+          echo "Adres runnera: $IP"
+          gcloud compute firewall-rules create ci-ssh-${{ github.run_id }} \
             --network inkwell-vpc --allow tcp:22 \
-            --source-ranges "$(curl -s https://ifconfig.me)/32" --quiet
+            --source-ranges "$IP/32" --quiet
 
       - name: Usuń resztki klastra
         run: ansible-playbook playbooks/teardown.yml
