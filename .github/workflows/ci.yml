@@ -96,12 +96,14 @@ jobs:
           pip install ansible-core google-auth requests
           ansible-galaxy collection install -r requirements.yml -p ./collections
 
-      - name: Usuń regułę firewalla
-        if: always()
+      - name: Hasło Vaulta
+        env:
+          VAULT_PASS: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
         run: |
-          gcloud compute firewall-rules delete ci-ssh-${{ github.run_id }} --quiet \
-            || echo "Reguła nie istniała, nie ma czego usuwać"
-      
+          mkdir -p ~/.ansible
+          printf '%s' "$VAULT_PASS" > ~/.ansible/vault_pass
+          chmod 600 ~/.ansible/vault_pass
+
       - name: Czy klaster istnieje
         run: |
           ansible role_k3s_master --list-hosts | grep -q k3s-master \
@@ -121,17 +123,15 @@ jobs:
             --network inkwell-vpc --allow tcp:22 \
             --source-ranges "$(curl -s https://ifconfig.me)/32" --quiet
 
-      - name: Hasło Vaulta
-        env:
-          VAULT_PASS: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
-        run: |
-          mkdir -p ~/.ansible
-          printf '%s' "$VAULT_PASS" > ~/.ansible/vault_pass
-          chmod 600 ~/.ansible/vault_pass
-
-
       - name: Wdrożenie
         run: ansible-playbook playbooks/app.yml -e app_image_tag=${{ github.sha }}
+
       - name: Testy dymne
         run: ansible-playbook playbooks/smoke.yml
+
+      - name: Usuń regułę firewalla
+        if: always()
+        run: |
+          gcloud compute firewall-rules delete ci-ssh-${{ github.run_id }} --quiet \
+            || echo "Reguła nie istniała, nie ma czego usuwać"
 
