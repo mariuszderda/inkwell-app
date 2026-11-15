@@ -65,9 +65,14 @@
       -f {{ k8s_remote }}/web/service.yml
       -f {{ k8s_remote }}/web/ingress.yml
       -f {{ k8s_remote }}/web/hpa.yml
+      -f {{ k8s_remote }}/web/worker.yml
   register: r
   changed_when: "'created' in r.stdout or 'configured' in r.stdout"
 
 - name: Czekaj na aplikacje
   ansible.builtin.command: kubectl rollout status deployment/web -n inkwell --timeout=180s
+  changed_when: false
+
+- name: Czekaj na workera
+  ansible.builtin.command: k3s kubectl rollout status deployment/worker -n inkwell --timeout=180s
   changed_when: false
