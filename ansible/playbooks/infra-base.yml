@@ -6,8 +6,6 @@
   module_defaults:
     group/google.cloud.gcp:
       project: "{{ gcp_project }}"
-      auth_kind: serviceaccount
-      service_account_file: "{{ gcp_cred_file }}"
 
   roles:
     - gcp_network

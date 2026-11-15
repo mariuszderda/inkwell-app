@@ -1,8 +1,6 @@
 plugin: google.cloud.gcp_compute
 projects: [devops-automation-514010]
 zones: [europe-central2-a]
-auth_kind: serviceaccount
-service_account_file: ~/.gcp/ansible.json
 filters:
   - labels.project = inkwell
 keyed_groups:
