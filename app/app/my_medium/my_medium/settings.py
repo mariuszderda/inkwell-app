@@ -26,6 +26,7 @@ for _env_file in (BASE_DIR.parent.parent / ".env", BASE_DIR.parent / ".env", BAS
 SECRET_KEY = env("SECRET_KEY")
 DEBUG = env("DEBUG")
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS")
 LOG_LEVEL = env("LOG_LEVEL").upper()
 

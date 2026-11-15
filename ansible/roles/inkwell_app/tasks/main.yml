@@ -58,6 +58,19 @@
   ansible.builtin.command: k3s kubectl wait --for=condition=complete job/migrate -n inkwell --timeout=180s
   changed_when: false
 
+- name: Czekaj na cert-manager
+  ansible.builtin.command: k3s kubectl rollout status deployment/cert-manager-webhook -n cert-manager --timeout=60s
+  register: cm
+  until: cm.rc == 0
+  retries: 10
+  delay: 15
+  changed_when: false
+
+- name: Wystawca certyfikatów
+  ansible.builtin.command: k3s kubectl apply -f {{ k8s_remote }}/web/issuer.yml
+  register: r
+  changed_when: "'created' in r.stdout or 'configured' in r.stdout"
+
 - name: Aplikacja deployment + service + ingress
   ansible.builtin.command: >-
     k3s kubectl apply

@@ -5,5 +5,5 @@ metadata:
   namespace: inkwell
 data:
   DEBUG: "False"
-  ALLOWED_HOST: "localhost, {{ app_host }}"
+  ALLOWED_HOSTS: "localhost,{{ app_host }},{{ app_domain }}"
   LOG_LEVEL: "INFO"

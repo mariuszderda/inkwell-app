@@ -24,6 +24,25 @@
         valuesContent: |-
           nodeSelector:
             node-role.kubernetes.io/control-plane: "true"
+- name: cert-manager (instalowany przez k3s)
+  ansible.builtin.copy:
+    dest: /var/lib/rancher/k3s/server/manifests/cert-manager.yaml
+    mode: "0600"
+    content: |
+      apiVersion: helm.cattle.io/v1
+      kind: HelmChart
+      metadata:
+        name: cert-manager
+        namespace: kube-system
+      spec:
+        repo: https://charts.jetstack.io
+        chart: cert-manager
+        version: {{ cert_manager_version }}
+        targetNamespace: cert-manager
+        createNamespace: true
+        valuesContent: |-
+          crds:
+            enabled: true
 
 - name: Zainstaluj k3s (server)
   ansible.builtin.command: /usr/local/bin/k3s-install.sh
