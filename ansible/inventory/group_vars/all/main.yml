@@ -16,10 +16,6 @@ gcp_subnet_selflink: "{{ gcp_api }}/regions/{{ gcp_region }}/subnetworks/{{ gcp_
 
 gcp_nodes_sa: "inkwell-nodes@{{ gcp_project }}.iam.gserviceaccount.com"
 
-# access
-ssh_user: devops_automatyzacja
-ssh_pubkey_file: ~/.ssh/inkwell.pub
-
 admin_cidr: "77.222.229.186/32"
 
 k3s_token: "{{ vault_k3s_token }}"
