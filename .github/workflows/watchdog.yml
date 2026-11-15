@@ -1,0 +1,99 @@
+name: Watchdog
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+env:
+  APP_URL: "http://34.118.119.196/"
+
+jobs:
+  check:
+    if: github.event_name == 'workflow_dispatch' || vars.WATCHDOG_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      healthy: ${{ steps.probe.outputs.healthy }}
+    steps:
+      - name: Czy aplikacja odpowiada
+        id: probe
+        run: |
+          for i in 1 2 3; do
+            code=$(curl -s -o /dev/null -m 10 -w '%{http_code}' "$APP_URL" || true)
+            echo "Próba $i: $code"
+            if [ "$code" = "200" ] || [ "$code" = "302" ]; then
+              echo "healthy=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            sleep 30
+          done
+          echo "healthy=false" >> "$GITHUB_OUTPUT"
+
+  rebuild:
+    needs: check
+    if: needs.check.outputs.healthy == 'false'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency: cluster
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      GCP_AUTH_KIND: application
+      ANSIBLE_SSH_RETRIES: "5"
+    defaults:
+      run:
+        working-directory: ansible
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/141383313394/locations/global/workloadIdentityPools/github/providers/github
+          service_account: ansible@devops-automation-514010.iam.gserviceaccount.com
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Ansible i kolekcje
+        run: |
+          pip install ansible-core google-auth requests
+          ansible-galaxy collection install -r requirements.yml -p ./collections
+
+      - name: Hasło Vaulta
+        env:
+          VAULT_PASS: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+        run: |
+          mkdir -p ~/.ansible ~/.kube
+          printf '%s' "$VAULT_PASS" > ~/.ansible/vault_pass
+          chmod 600 ~/.ansible/vault_pass
+
+      - name: Klucz SSH na czas odbudowy
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keygen -t ed25519 -N "" -q -f ~/.ssh/ci
+          gcloud compute os-login ssh-keys add --key-file ~/.ssh/ci.pub --ttl 30m > /dev/null
+          echo "ANSIBLE_REMOTE_USER=$(gcloud compute os-login describe-profile --format='value(posixAccounts[0].username)')" >> "$GITHUB_ENV"
+          echo "ANSIBLE_PRIVATE_KEY_FILE=$HOME/.ssh/ci" >> "$GITHUB_ENV"
+
+      - name: Tymczasowa reguła firewalla dla runnera
+        run: |
+          gcloud compute firewall-rules create watchdog-ssh-${{ github.run_id }} \
+            --network inkwell-vpc --allow tcp:22 \
+            --source-ranges "$(curl -s https://ifconfig.me)/32" --quiet
+
+      - name: Usuń resztki klastra
+        run: ansible-playbook playbooks/teardown.yml
+
+      - name: Odbuduj wszystko
+        run: ansible-playbook playbooks/site.yml
+
+      - name: Usuń regułę firewalla
+        if: always()
+        run: |
+          gcloud compute firewall-rules delete watchdog-ssh-${{ github.run_id }} --quiet \
+            || echo "Reguła nie istniała"
+
