@@ -14,6 +14,7 @@
       role: "{{ item.role }}"
     metadata:
       ssh-keys: "{{ ssh_user }}:{{ lookup('file', ssh_pubkey_file | expanduser) }}"
+      enable-oslogin: true
     disks:
       - boot: true
         auto_delete: true
