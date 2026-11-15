@@ -20,7 +20,7 @@ jobs:
         working-directory: app/app/my_medium
     services:
       postgres:
-        image: postgres:1-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_DB: inkwell
           POSTGRES_USER: postgres
