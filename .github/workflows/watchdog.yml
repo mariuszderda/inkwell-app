@@ -4,13 +4,18 @@ on:
   schedule:
     - cron: "*/5 * * * *"
   workflow_dispatch:
+    inputs:
+      force:
+        description: "Uruchom mimo wyłączonego strażnika"
+        type: boolean
+        default: false
 
 env:
   APP_URL: "http://34.118.119.196/"
 
 jobs:
   check:
-    if: github.event_name == 'workflow_dispatch' || vars.WATCHDOG_ENABLED == 'true'
+    if: inputs.force == true || vars.WATCHDOG_ENABLED == 'true'
     runs-on: ubuntu-latest
     outputs:
       healthy: ${{ steps.probe.outputs.healthy }}
@@ -38,6 +43,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
+      actions: write
     env:
       GCP_AUTH_KIND: application
       ANSIBLE_SSH_RETRIES: "5"
@@ -46,6 +52,17 @@ jobs:
         working-directory: ansible
     steps:
       - uses: actions/checkout@v4
+
+      - name: Sprawdź ponownie (inna odbudowa mogła już naprawić klaster)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          code=$(curl -s -o /dev/null -m 10 -w '%{http_code}' "$APP_URL" || true)
+          if [ "$code" = "200" ] || [ "$code" = "302" ]; then
+            echo "Aplikacja już działa, odbudowa niepotrzebna"
+            gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
+            sleep 60
+          fi
 
       - uses: google-github-actions/auth@v2
         with:
